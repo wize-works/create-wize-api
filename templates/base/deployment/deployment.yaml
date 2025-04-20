@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: __PROJECT_NAME__
-  namespace: development
+  namespace: wizeworks
   labels:
     app: __PROJECT_NAME__
 spec:
