@@ -6,7 +6,7 @@ on:
         - main
 
 env:
-    IMAGE_NAME: wize-__PROJECT_NAME__
+    IMAGE_NAME: __PROJECT_NAME__
 
 jobs:
     build-and-deploy:
