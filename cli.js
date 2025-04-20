@@ -27,7 +27,7 @@ async function replacePlaceholders(dir, replacements) {
             await fs.writeFile(fullPath, content)
         }
     }
-};
+}
 
 async function createProject() {
     console.log(chalk.bold.cyan('\n✨ WizeWorks API Scaffolder'))
@@ -96,9 +96,37 @@ ${chalk.cyan('Next steps:')}
 ${chalk.magenta('📦 Happy building with WizeWorks!')}
 ${chalk.gray('Tip: Run')} ${chalk.blue('npm run patchversion')} ${chalk.gray('before each push to version your package')}
 `)
-};
+
+    // 🟦 Offer to open in VSCode
+    let hasVSCode = false
+    try {
+        await execa('code', ['--version'])
+        hasVSCode = true
+    } catch (_) {
+        hasVSCode = false
+    }
+
+    if (hasVSCode) {
+        const { openInVSCode } = await prompts({
+            type: 'confirm',
+            name: 'openInVSCode',
+            message: 'Open project in VSCode?',
+            initial: true
+        })
+
+        if (openInVSCode) {
+            try {
+                await execa('code', [targetDir], { stdio: 'inherit' })
+            } catch (err) {
+                console.warn(chalk.yellow('\n⚠️  Could not launch VSCode. You can open it manually with:\n'), `cd ${projectName} && code .`)
+            }
+        }
+    } else {
+        console.log(chalk.gray('\n⚠️  VSCode CLI not detected. You can open the project manually with:\n'), `cd ${projectName} && code .`)
+    }
+}
 
 createProject().catch(err => {
     console.error(chalk.red('\n✖ Failed to create project:'), err)
     process.exit(1)
-});
+})
