@@ -7,6 +7,7 @@
 [![GraphQL](https://img.shields.io/badge/graphql-powered-E10098.svg?style=flat-square&logo=graphql&logoColor=white)](https://graphql.org)
 [![Sentry](https://img.shields.io/badge/logged%20with-sentry-orange?style=flat-square&logo=sentry)](https://sentry.io)
 [![Supabase](https://img.shields.io/badge/database-supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
+[![npm](https://img.shields.io/npm/v/@wizeworks/create-wize-api?label=npm)](https://www.npmjs.com/package/@wizeworks/create-wize-api)
 
 ---
 
@@ -45,13 +46,18 @@ The **WizeWorks GraphQL API** is a multi-tenant, Supabase-backed API built with 
 
 ## 🏁 Getting Started
 
-### 1. Clone & Install
+### 1. Scaffold a New Project
 
 ```bash
-git clone https://github.com/wize-works/wizeworks-api.git
-cd wizeworks-api
-npm install
+npx @wizeworks/create-wize-api
 ```
+
+This will prompt you for:
+- Project name
+- Display name
+- And automatically install dependencies
+
+---
 
 ### 2. Environment Setup
 
@@ -133,7 +139,7 @@ You can customize these in `.github/workflows/deploy.yml`.
 
 ### 🔁 Commit Versioning Requirement
 
-Before pushing commits to `development`, apply a version bump using one of the following:
+Before pushing commits to `development`, follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) and apply a version bump using one of the following:
 
 ```bash
 npm run patchversion   # For patches
@@ -141,7 +147,10 @@ npm run minorversion   # For minor feature additions
 npm run majorversion   # For breaking changes
 ```
 
-This ensures semantic versioning is maintained via the `version` field in `package.json`.
+Semantic Release will automatically:
+- Analyze commits
+- Bump the version
+- Publish to npm under the `@wizeworks` scope
 
 ---
 

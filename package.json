@@ -1,5 +1,5 @@
 {
-    "name": "create-wize-api",
+    "name": "@wizeworks/create-wize-api",
     "description": "A CLI to scaffold Fastify + Supabase + GraphQL API projects for WizeWorks.",
     "main": "cli.js",
     "bin": {
