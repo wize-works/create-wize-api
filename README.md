@@ -1,8 +1,8 @@
 # WizeWorks GraphQL API 🚀
 
-[![CI](https://img.shields.io/github/actions/workflow/status/your-org/your-repo/ci.yml?label=CI&style=flat-square)](https://github.com/wize-works/create-wize-api)
-[![License](https://img.shields.io/github/license/your-org/your-repo?style=flat-square)](LICENSE)
-[![Issues](https://img.shields.io/github/issues/your-org/your-repo?style=flat-square)](https://github.com/wize-works/create-wize-api/issues)
+[![CI](https://img.shields.io/github/actions/workflow/status/wize-works/create-wize-api/ci.yml?label=CI&style=flat-square)](https://github.com/wize-works/create-wize-api)
+[![License](https://img.shields.io/github/license/wize-works/create-wize-api?style=flat-square)](LICENSE)
+[![Issues](https://img.shields.io/github/issues/wize-works/create-wize-api?style=flat-square)](https://github.com/wize-works/create-wize-api/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/wize-works/create-wize-api/pulls)
 [![GraphQL](https://img.shields.io/badge/graphql-powered-E10098.svg?style=flat-square&logo=graphql&logoColor=white)](https://graphql.org)
 [![Sentry](https://img.shields.io/badge/logged%20with-sentry-orange?style=flat-square&logo=sentry)](https://sentry.io)
