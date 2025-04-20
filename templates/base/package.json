@@ -1,0 +1,38 @@
+{
+    "name": "__PROJECT_NAME__",
+    "version": "0.1.0",
+    "description": "__PROJECT_DESCRIPTION__",
+    "main": "dist/server.js",
+    "type": "commonjs",
+    "scripts": {
+        "dev": "tsx src/server.ts",
+        "build": "tsc",
+        "start": "node dist/server.js",
+        "typecheck": "tsc --noEmit",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "patchversion": "npm version patch",
+        "minorversion": "npm version minor",
+        "majorversion": "npm version major"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "MIT",
+    "dependencies": {
+        "@sentry/node": "^9.13.0",
+        "@sentry/profiling-node": "^9.13.0",
+        "@supabase/supabase-js": "^2.49.4",
+        "dotenv": "^16.5.0",
+        "fastify": "^5.3.0",
+        "graphql": "^16.10.0",
+        "graphql-scalars": "^1.24.2",
+        "graphql-subscriptions": "^3.0.0",
+        "mercurius": "^16.1.0"
+    },
+    "devDependencies": {
+        "@types/node": "^22.14.1",
+        "nodemon": "^3.1.9",
+        "ts-node": "^10.9.2",
+        "tsx": "^4.19.3",
+        "typescript": "^5.8.3"
+    }
+}

@@ -1,0 +1,31 @@
+# Ignore node modules (npm ignores this by default, but being explicit)
+node_modules/
+npm-debug.log
+pnpm-lock.yaml
+yarn.lock
+
+# Ignore editor settings
+.vscode/
+.idea/
+
+# Ignore dev/test folders if any
+test/
+tests/
+__tests__/
+
+# Ignore configs not needed at runtime
+tsconfig.json
+*.ts
+*.tsx
+
+# Ignore local scripts/docs
+scripts/
+docs/
+postinstall.ts
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore source that gets compiled into cli.js (if applicable)
+src/

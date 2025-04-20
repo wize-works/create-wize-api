@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: wize-__PROJECT_NAME__-service
+  namespace: development
+  labels:
+    app: wize-__PROJECT_NAME__
+spec:
+  selector:
+    app: wize-__PROJECT_NAME__
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

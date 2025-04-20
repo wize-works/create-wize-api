@@ -1,0 +1,42 @@
+{
+    "name": "create-wize-api",
+    "version": "1.0.17",
+    "description": "A CLI to scaffold Fastify + Supabase + GraphQL API projects for WizeWorks.",
+    "main": "cli.js",
+    "bin": {
+        "create-wize-api": "./cli.js"
+    },
+    "scripts": {
+        "patchversion": "npm version patch",
+        "minorversion": "npm version minor",
+        "majorversion": "npm version major"
+    },
+    "author": "Brandon Korous",
+    "homepage": "https://wize.works",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/BrandonKorous/create-wize-api.git"
+    },
+    "license": "MIT",
+    "type": "module",
+    "dependencies": {
+        "chalk": "^5.4.1",
+        "execa": "^9.5.2",
+        "fs-extra": "^11.3.0",
+        "prompts": "^2.4.2"
+    },
+    "keywords": [
+        "cli",
+        "wize",
+        "api",
+        "fastify",
+        "supabase",
+        "graphql"
+    ],
+    "files": [
+        "cli.js",
+        "templates",
+        "package.json",
+        "README.md"
+    ]
+}

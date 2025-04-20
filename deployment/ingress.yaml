@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: wize-__PROJECT_NAME__-ingress
+  namespace: development
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-brandonkorous
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - api.wize.works
+      secretName: wizeworks-tls
+  rules:
+    - host: api.wize.works
+      http:
+        paths:
+          - path: /__PROJECT_NAME__(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: wize-__PROJECT_NAME__-service
+                port:
+                  number: 80
