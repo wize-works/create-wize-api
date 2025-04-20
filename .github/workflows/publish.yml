@@ -1,25 +1,22 @@
-name: 🚀 Publish to NPM
+name: 🚀 Release and Publish
 
 on:
   push:
     branches:
       - main
-    paths:
-      - 'cli.js'
-      - 'template/**'
-      - 'package.json'
-      - '.github/workflows/publish.yml'
+      - development
 
 jobs:
-  publish:
-    name: Publish CLI to npm
+  release:
+    name: Semantic Release to npm
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read
+      contents: write
+      packages: write
 
     steps:
-      - name: ⬇️ Checkout code
+      - name: ⬇️ Checkout repo
         uses: actions/checkout@v3
 
       - name: 🟨 Setup Node.js
@@ -31,18 +28,8 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
-      - name: 🔍 Check if version already published
-        id: check_version
-        run: |
-          PUBLISHED=$(npm view create-wize-api@$(node -p "require('./package.json').version") version || echo "none")
-          echo "version=$PUBLISHED" >> "$GITHUB_OUTPUT"
-
-      - name: 🚀 Publish to npm
-        if: steps.check_version.outputs.version == 'none'
-        run: npm publish --access public
+      - name: 🚀 Run Semantic Release
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-      - name: ✅ Done
-        if: steps.check_version.outputs.version != 'none'
-        run: echo "🛑 Version already published. Skipping publish."
+        run: npx semantic-release

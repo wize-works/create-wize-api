@@ -1,6 +1,6 @@
 # WizeWorks GraphQL API 🚀
 
-[![CI](https://img.shields.io/github/actions/workflow/status/wize-works/create-wize-api/ci.yml?label=CI&style=flat-square)](https://github.com/wize-works/create-wize-api)
+[![CI](https://img.shields.io/github/actions/workflow/status/wize-works/create-wize-api/publish.yml?label=CI&style=flat-square)](https://github.com/wize-works/create-wize-api/actions/workflows/publish.yml)
 [![License](https://img.shields.io/github/license/wize-works/create-wize-api?style=flat-square)](LICENSE)
 [![Issues](https://img.shields.io/github/issues/wize-works/create-wize-api?style=flat-square)](https://github.com/wize-works/create-wize-api/issues)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/wize-works/create-wize-api/pulls)

@@ -1,0 +1,43 @@
+# Node modules
+node_modules/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# Template dependencies
+template/node_modules/
+template/**/dist/
+template/**/build/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Editor config
+.vscode/
+.idea/
+
+# Test output
+coverage/
+*.lcov
+
+# Environment and secrets
+.env
+.env.local
+.env.development
+.env.production
+
+# CLI execution artifacts
+*.tgz
+*.log
+
+# Optional: CLI temp/output
+cli-output/
