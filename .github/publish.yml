@@ -1,0 +1,48 @@
+name: 🚀 Publish to NPM
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'cli.js'
+      - 'template/**'
+      - 'package.json'
+      - '.github/workflows/publish.yml'
+
+jobs:
+  publish:
+    name: Publish CLI to npm
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🟨 Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🔍 Check if version already published
+        id: check_version
+        run: |
+          PUBLISHED=$(npm view create-wize-api@$(node -p "require('./package.json').version") version || echo "none")
+          echo "version=$PUBLISHED" >> "$GITHUB_OUTPUT"
+
+      - name: 🚀 Publish to npm
+        if: steps.check_version.outputs.version == 'none'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: ✅ Done
+        if: steps.check_version.outputs.version != 'none'
+        run: echo "🛑 Version already published. Skipping publish."
