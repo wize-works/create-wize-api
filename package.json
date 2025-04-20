@@ -15,7 +15,7 @@
     "homepage": "https://wize.works",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/BrandonKorous/create-wize-api.git"
+        "url": "git+https://github.com/wize-works/create-wize-api.git"
     },
     "license": "MIT",
     "type": "module",
