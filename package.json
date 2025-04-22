@@ -10,7 +10,7 @@
         "minorversion": "npm version minor",
         "majorversion": "npm version major"
     },
-    "author": "Brandon Korous",
+    "author": "WizeWorks",
     "homepage": "https://wize.works",
     "repository": {
         "type": "git",

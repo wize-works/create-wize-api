@@ -1,7 +1,5 @@
 export interface AuthContext {
-    user: {
-        id: string;
-    };
+    userId: string;
     tenantId: string;
     scopes: string[];
 }

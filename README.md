@@ -156,7 +156,7 @@ Semantic Release will automatically:
 
 ## ✍️ License
 
-MIT © [WizeWorks](https://github.com/wizeworks)
+MIT © [WizeWorks](https://github.com/wize-works)
 
 ---
 

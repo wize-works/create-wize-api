@@ -2,19 +2,22 @@
 import './config/dotenv';
 import Sentry from './lib/sentry';
 
+import path from 'path';
 import Fastify from 'fastify';
 import mercurius from 'mercurius';
-import { exampleSchema } from './schemas/examples';
 import { authContext } from './lib/auth';
 
+import { buildUnifiedGraphQLSchemaFromFolder } from '@wizeworks/graphql-factory';
 
 const app = Fastify();
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 80;
-
 Sentry.setupFastifyErrorHandler(app);
 
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 80;
+
+const schema = buildUnifiedGraphQLSchemaFromFolder(path.join(__dirname, 'models'));
+
 app.register(mercurius, {
-    schema: exampleSchema,
+    schema: schema,
     graphiql: true,
     path: '/graphql',
     context: authContext,

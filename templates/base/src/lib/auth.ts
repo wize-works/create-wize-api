@@ -14,9 +14,9 @@ export const authContext = async (req: FastifyRequest): Promise<AuthContext> => 
     const { data, error } = await supabase
         .schema('api')
         .from('api_keys')
-        .select('tenant_id, scopes')
+        .select('tenantId, scopes')
         .eq('key', apiKey)
-        .eq('is_active', true)
+        .eq('isActive', true)
         .maybeSingle();
 
     if (error || !data) {
@@ -37,7 +37,7 @@ export const authContext = async (req: FastifyRequest): Promise<AuthContext> => 
     }
 
     return {
-        user: { id: '00000000-0000-0000-0000-000000000000' },
+        userId: '00000000-0000-0000-0000-000000000000',
         tenantId: data.tenant_id,
         scopes: data.scopes || []
     };
