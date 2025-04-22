@@ -139,14 +139,6 @@ You can customize these in `.github/workflows/deploy.yml`.
 
 ### 🔁 Commit Versioning Requirement
 
-Before pushing commits to `development`, follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) and apply a version bump using one of the following:
-
-```bash
-npm run patchversion   # For patches
-npm run minorversion   # For minor feature additions
-npm run majorversion   # For breaking changes
-```
-
 Semantic Release will automatically:
 - Analyze commits
 - Bump the version

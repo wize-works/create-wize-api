@@ -22,7 +22,8 @@ WORKDIR /app
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist/models ./dist/models
 
 ENV NODE_ENV=production
-
+EXPOSE 80
 CMD ["node", "dist/server.js"]
