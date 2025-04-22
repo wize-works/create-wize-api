@@ -44,7 +44,7 @@
         "conventional-changelog-conventionalcommits": "^8.0.0",
         "semantic-release": "^24.2.3"
     },
-    "version": "1.4.0-development.1",
+    "version": "1.4.0-development.2",
     "private": false,
     "readmeFilename": "README.md"
 }
