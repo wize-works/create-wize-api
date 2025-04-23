@@ -6,7 +6,7 @@
 [![graphql](https://img.shields.io/badge/graphql-supported-ff69b4.svg)]()
 [![supabase](https://img.shields.io/badge/supabase-integrated-3ecf8e.svg)]()
 
-__PROJECT_NAME__ is a lightweight, multi-tenant GraphQL API for managing __PROJECT_NAME__s, designed for integration into content platforms. It supports structured __PROJECT_NAME__ threads with fine-grained access control via API key scopes.
+__PROJECT_NAME__ is a lightweight, multi-tenant GraphQL API for managing __PROJECT_NAME__s, designed for integration into __PROJECT_NAME__ platforms. It supports structured __PROJECT_NAME__ threads with fine-grained access control via API key scopes.
 
 ---
 
@@ -47,7 +47,7 @@ Requests must include a header:
 ```http
 wize-api-key: <your-api-key>
 ```
-This key must be stored in the `api.api_keys` table in Supabase with `is_active = true`.
+This key must be stored in the `api.api_keys` table in Supabase with `isActive = true`.
 
 ---
 
@@ -56,7 +56,7 @@ This key must be stored in the `api.api_keys` table in Supabase with `is_active 
 query GetExamples($postId: String!) {
   __PROJECT_NAME__s(postId: $postId) {
     id
-    content
+    __PROJECT_NAME__
     createdAt
     userId
   }
@@ -67,10 +67,10 @@ query GetExamples($postId: String!) {
 
 ## ✏️ Example GraphQL Mutation
 ```graphql
-mutation AddExample($postId: String!, $content: String!, $parentId: ID) {
-  addExample(postId: $postId, content: $content, parentId: $parentId) {
+mutation AddExample($postId: String!, $__PROJECT_NAME__: String!, $parentId: ID) {
+  addExample(postId: $postId, __PROJECT_NAME__: $__PROJECT_NAME__, parentId: $parentId) {
     id
-    content
+    __PROJECT_NAME__
     createdAt
   }
 }

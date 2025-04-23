@@ -12,7 +12,7 @@ import { buildUnifiedGraphQLSchemaFromFolder } from '@wizeworks/graphql-factory'
 const app = Fastify();
 Sentry.setupFastifyErrorHandler(app);
 
-const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 80;
+const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 
 const schema = buildUnifiedGraphQLSchemaFromFolder(path.join(__dirname, 'models'));
 
@@ -35,7 +35,7 @@ app.setNotFoundHandler((request, reply) => {
     reply.status(404).send({ error: 'Not Found' });
 });
 
-app.listen({ port: port }, (err, address) => {
+app.listen({ port: port, host: '0.0.0.0' }, (err, address) => {
     if (err) {
         Sentry.captureException(err);
         console.error(err);

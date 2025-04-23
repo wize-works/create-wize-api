@@ -3,16 +3,14 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Accept build-time NODE_ENV
-ARG NODE_ENV=production
-ENV NODE_ENV=$NODE_ENV
 
-# Install dependencies
+# Install dependencies (including dev for build tools like TypeScript)
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev
+RUN npm ci
 
 # Copy source code and build
 COPY . .
+
 RUN npm run build
 
 # Stage 2: Runtime
@@ -36,11 +34,13 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/dist/models ./dist/models
 
 # Environment and port
-ENV NODE_ENV=production
-EXPOSE 80
+# Accept build-time NODE_ENV
+ARG NODE_ENV=production
+ENV NODE_ENV=$NODE_ENV
+EXPOSE 3000
 
-# Optional: Healthcheck (Kubernetes can use this too)
-HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD wget -qO- http://localhost:80/health || exit 1
+# Optional: Healthcheck
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s CMD wget -qO- http://localhost:3000/health || exit 1
 
 # Start the app
 CMD ["node", "dist/server.js"]
