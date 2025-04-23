@@ -38,7 +38,7 @@ export const authContext = async (req: FastifyRequest): Promise<AuthContext> => 
 
     return {
         userId: '00000000-0000-0000-0000-000000000000',
-        tenantId: data.tenant_id,
+        tenantId: data.tenantId,
         scopes: data.scopes || []
     };
 };
