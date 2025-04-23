@@ -29,7 +29,7 @@ spec:
   tls:
     - hosts:
         - api.wize.works
-      secretName: wize-comment-tls
+      secretName: __PROJECT_NAME__-tls
   rules:
     - host: api.wize.works
       http:
@@ -41,5 +41,3 @@ spec:
                 name: __PROJECT_NAME__-service
                 port:
                   number: 80
-
-                  apiVersion: cert-manager.io/v1

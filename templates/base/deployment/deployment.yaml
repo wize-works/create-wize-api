@@ -20,6 +20,11 @@ spec:
         image: ${ACR_NAME}.azurecr.io/__PROJECT_NAME__:${IMAGE_TAG}
         ports:
         - containerPort: 80
+        securityContext:
+          runAsNonRoot: true
+          runAsUser: 1000
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: true
         env:
         - name: ENVIRONMENT
           value: "production"
