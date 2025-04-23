@@ -19,7 +19,7 @@
         "@sentry/profiling-node": "^9.13.0",
         "@supabase/postgrest-js": "^1.19.4",
         "@supabase/supabase-js": "^2.49.4",
-        "@wizeworks/graphql-factory": "^1.5.3",
+        "@wizeworks/graphql-factory": "^1.5.4",
         "chalk": "^5.4.1",
         "dotenv": "^16.5.0",
         "fastify": "^5.3.0",
