@@ -6,14 +6,14 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](https://github.com/wize-works/create-wize-api/pulls)
 [![GraphQL](https://img.shields.io/badge/graphql-powered-E10098.svg?style=flat-square&logo=graphql&logoColor=white)](https://graphql.org)
 [![Sentry](https://img.shields.io/badge/logged%20with-sentry-orange?style=flat-square&logo=sentry)](https://sentry.io)
-[![MongoDb](https://img.shields.io/badge/database-supabase-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com)
+[![MongoDb](https://img.shields.io/badge/database-mongodb-4DB33D?style=flat-square&logo=mongodb&logoColor=white)](https://www.mongodb.com)
 [![npm](https://img.shields.io/npm/v/@wizeworks/create-wize-api?label=npm)](https://www.npmjs.com/package/@wizeworks/create-wize-api)
 
 ---
 
 ## ✨ Overview
 
-The **WizeWorks GraphQL API** is a multi-tenant, Supabase-backed API built with **Fastify**, **Mercurius**, and modern tooling for observability and traceability via **Sentry**.
+The **WizeWorks GraphQL API** is a multi-tenant, MongoDB-backed API built with **Express**, **GraphQL Yoga**, and modern tooling for observability and traceability via **Sentry**.
 
 > This API is designed to serve as a backend foundation for WizeWorks SaaS apps.
 
@@ -21,26 +21,26 @@ The **WizeWorks GraphQL API** is a multi-tenant, Supabase-backed API built with 
 
 ## 🔧 Tech Stack
 
-| Tool             | Purpose                                   |
-|------------------|-------------------------------------------|
-| **Fastify**      | Blazing-fast Node.js web framework        |
-| **Mercurius**    | GraphQL adapter for Fastify               |
-| **Supabase**     | Postgres + Auth + RLS backend             |
-| **Sentry**       | Error monitoring + transaction tracing    |
-| **GraphQL Scalars** | Extended GraphQL support (DateTime, etc.) |
-| **dotenv**       | Secure environment variable loading       |
+| Tool                  | Purpose                                   |
+|-----------------------|-------------------------------------------|
+| **Express**           | Lightweight Node.js web framework        |
+| **GraphQL Yoga**      | GraphQL server with subscriptions        |
+| **MongoDB**           | NoSQL database for multi-tenant data     |
+| **Sentry**            | Error monitoring + transaction tracing   |
+| **GraphQL Scalars**   | Extended GraphQL support (DateTime, etc.)|
+| **dotenv**            | Secure environment variable loading      |
 
 ---
 
 ## 🚀 Features
 
 - ⚡ Fast and lightweight GraphQL API
-- 🔐 Multi-tenant aware via RLS and `set_config`
-- 📦 Supabase integration with typed data support
+- 🔐 Multi-tenant aware via dynamic `tenantId` injection
+- 📦 MongoDB integration with dynamic schema support
 - 🧠 Rich GraphQL subscriptions using PubSub
 - 📊 Full observability with scoped Sentry logging
-- 🛡️ Fine-grained auth using custom scopes
-- 🧪 Easy local development with `.env` and mock RLS
+- 🛡️ Fine-grained auth using API keys and scopes
+- 🧪 Easy local development with `.env` and mock data
 
 ---
 
@@ -64,9 +64,9 @@ This will prompt you for:
 Create a `.env` file based on `.env.example`:
 
 ```env
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_KEY=your-service-role-key
+MONGO_URI=mongodb://localhost:27017
 SENTRY_DSN=https://examplePublicKey@o0.ingest.sentry.io/0
+PORT=3000
 ```
 
 ### 3. Run the Dev Server
@@ -76,7 +76,7 @@ npm run dev
 ```
 
 Access GraphQL Playground at:  
-👉 `http://localhost:3000/graphiql`
+👉 `http://localhost:3000/graphql`
 
 ---
 
@@ -129,8 +129,7 @@ You’ll need to configure the following secrets in your GitHub repository:
 | `AKS_CLUSTER`       | AKS Cluster Name                            |
 | `ACR_NAME`          | Container registry URL                      |
 | `IMAGE_NAME`        | Image name (`e.g., wize-example`)           |
-| `SUPABASE_URL`      | Supabase URL                                |
-| `SUPABASE_KEY`      | Supabase Key                                |
+| `MONGO_URI`         | MongoDB connection string                   |
 | `SENTRY_DSN`        | Sentry DSN                                  |
 
 You can customize these in `.github/workflows/deploy.yml`.
@@ -157,7 +156,7 @@ MIT © [WizeWorks](https://github.com/wize-works)
 - ⚙️ CLI for creating tenants & migrations
 - 📘 Swagger/OpenAPI generation for REST proxying
 - 🧩 Federation-ready module splitting
-- 🔁 Live Supabase → PubSub bridge
+- 🔁 Live MongoDB → PubSub bridge
 
 ---
 
