@@ -1,5 +1,3 @@
-# .github/workflows/deploy.yml
-
 name: Build and Deploy to AKS
 
 on:
@@ -8,7 +6,7 @@ on:
       - main
 
 env:
-  IMAGE_NAME: __PROJECT_NAME_
+  IMAGE_NAME: __PROJECT_NAME__
 
 jobs:
   release:
@@ -21,21 +19,24 @@ jobs:
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-      - name: Semantic Release
+      - name: Run semantic-release
         id: semantic
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
 
-      - name: Get released version from Git tag
+      - name: Get released version from git tag
         id: get_version
         run: |
           VERSION=$(git describe --tags --abbrev=0)
@@ -47,76 +48,100 @@ jobs:
     if: needs.release.outputs.version != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    outputs:
+      version: ${{ steps.set_version.outputs.version }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: azure/login@v2
+      - name: Set VERSION from previous job
+        id: set_version
+        run: echo "version=${{ needs.release.outputs.version }}" >> $GITHUB_OUTPUT
+
+      - name: Log in to Azure
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Log in to Azure Container Registry
-        run: az acr login --name ${{ secrets.ACR_NAME }}
+      - name: Set up Docker to use ACR
+        run: |
+          az acr login --name ${{ secrets.ACR_NAME }}
 
-      - name: Build and Tag Docker Image
+      - name: Docker Build and Tag
         run: |
           docker build --no-cache \
-            --label org.opencontainers.image.title="${{ env.IMAGE_NAME }}" \
-            --label org.opencontainers.image.description="GraphQL API for ${{ env.IMAGE_NAME }}" \
-            --label org.opencontainers.image.version="${{ needs.release.outputs.version }}" \
-            --label org.opencontainers.image.revision="${{ github.sha }}" \
-            --label org.opencontainers.image.source="https://github.com/${{ github.repository }}" \
-            --label org.opencontainers.image.created="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
-            --label org.opencontainers.image.authors="devs@wize.works" \
-            --label org.opencontainers.image.licenses="MIT" \
+            --build-arg NODE_ENV=${{ github.ref_name == 'main' && 'production' || 'development' }} \
+            --label org.opencontainers.image.revision=${{ github.sha }} \
+            --label org.opencontainers.image.version=${{ needs.release.outputs.version }} \
             -t ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.version }} .
-          
           docker tag ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.version }} ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
 
-      - name: Push Docker Images
+      - name: Docker Push
         run: |
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.version }}
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
+
+      - name: Save metadata artifact
+        run: echo "Version=${{ needs.release.outputs.version }}" > metadata.txt
+
+      - name: Upload metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-metadata
+          path: metadata.txt
 
   aks-deploy:
     name: Deploy to AKS
     needs: docker-build-and-push
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: production
+    environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
     permissions:
-      contents: write
-      deployments: write
+        contents: write
+        deployments: write
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - uses: azure/login@v2
+      - name: Log in to Azure
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
       - name: Install kubelogin
         uses: azure/use-kubelogin@v1
         env:
-          version: latest
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
 
-      - uses: azure/aks-set-context@v4
+      - name: Set AKS Context
+        uses: azure/aks-set-context@v4
         with:
           cluster-name: ${{ secrets.AKS_CLUSTER }}
           resource-group: ${{ secrets.AZURE_RG }}
 
-      - name: Start GitHub Deployment
+      - name: Create GitHub deployment
         id: deployment
         uses: bobheadxi/deployments@v1
         with:
           step: start
           token: ${{ secrets.GITHUB_TOKEN }}
-          env: production
+          env: ${{ github.ref_name == 'main' && 'production' || 'development' }}
 
-      - name: Prepare Kubernetes manifests
+      - name: Debug environment variables
         run: |
-          export IMAGE_TAG=${{ needs.release.outputs.version }}
-          export ACR_NAME=${{ secrets.ACR_NAME }}
+          echo "IMAGE_TAG=${{ needs.docker-build-and-push.outputs.version }}"
+          echo "ACR_NAME=${{ secrets.ACR_NAME }}"
+
+      - name: Render deployment.yaml with secrets
+        run: |
+          echo "VERSION=${{ needs.docker-build-and-push.outputs.version }}" >> $GITHUB_ENV
           envsubst < deployment/deployment.yaml > deployment/deployment.final.yaml
+        env:
+          IMAGE_TAG: ${{ needs.docker-build-and-push.outputs.version }}
+          ACR_NAME: ${{ secrets.ACR_NAME }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
       - name: Deploy to AKS
         run: |
@@ -125,11 +150,12 @@ jobs:
           kubectl apply -f deployment/ingress.yaml
           kubectl rollout status deployment/${{ env.IMAGE_NAME }} -n wizeworks
 
-      - name: Finish GitHub Deployment
+      - name: Mark deployment as successful
+        if: success()
         uses: bobheadxi/deployments@v1
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
           status: success
-          env: production
+          env: ${{ github.ref_name == 'main' && 'production' || 'development' }}
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
