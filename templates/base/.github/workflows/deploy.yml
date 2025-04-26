@@ -1,3 +1,5 @@
+# .github/workflows/deploy.yml
+
 name: Build and Deploy to AKS
 
 on:
@@ -19,24 +21,21 @@ jobs:
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Install dependencies
-        run: npm ci
+      - run: npm ci
 
-      - name: Run semantic-release
+      - name: Semantic Release
         id: semantic
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
 
-      - name: Get released version from git tag
+      - name: Get released version from Git tag
         id: get_version
         run: |
           VERSION=$(git describe --tags --abbrev=0)
@@ -48,100 +47,72 @@ jobs:
     if: needs.release.outputs.version != ''
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    outputs:
-      version: ${{ steps.set_version.outputs.version }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set VERSION from previous job
-        id: set_version
-        run: echo "version=${{ needs.release.outputs.version }}" >> $GITHUB_OUTPUT
-
-      - name: Log in to Azure
-        uses: azure/login@v2
+      - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Set up Docker to use ACR
-        run: |
-          az acr login --name ${{ secrets.ACR_NAME }}
+      - name: Log in to Azure Container Registry
+        run: az acr login --name ${{ secrets.ACR_NAME }}
 
-      - name: Docker Build and Tag
+      - name: Build and Tag Docker Image
         run: |
           docker build --no-cache \
-            --build-arg NODE_ENV=${{ github.ref_name == 'main' && 'production' || 'development' }} \
-            --label org.opencontainers.image.revision=${{ github.sha }} \
-            --label org.opencontainers.image.version=${{ needs.release.outputs.version }} \
+            --label org.opencontainers.image.title="${{ env.IMAGE_NAME }}" \
+            --label org.opencontainers.image.description="GraphQL API for ${{ env.IMAGE_NAME }}" \
+            --label org.opencontainers.image.version="${{ needs.release.outputs.version }}" \
+            --label org.opencontainers.image.revision="${{ github.sha }}" \
+            --label org.opencontainers.image.source="https://github.com/${{ github.repository }}" \
+            --label org.opencontainers.image.created="$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
+            --label org.opencontainers.image.authors="devs@wize.works" \
+            --label org.opencontainers.image.licenses="MIT" \
             -t ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.version }} .
+          
           docker tag ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.version }} ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
 
-      - name: Docker Push
+      - name: Push Docker Images
         run: |
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:${{ needs.release.outputs.version }}
           docker push ${{ secrets.ACR_NAME }}.azurecr.io/${{ env.IMAGE_NAME }}:latest
-
-      - name: Save metadata artifact
-        run: echo "Version=${{ needs.release.outputs.version }}" > metadata.txt
-
-      - name: Upload metadata artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-metadata
-          path: metadata.txt
 
   aks-deploy:
     name: Deploy to AKS
     needs: docker-build-and-push
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+    environment: production
     permissions:
-        contents: write
-        deployments: write
+      contents: write
+      deployments: write
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Log in to Azure
-        uses: azure/login@v2
+      - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Install kubelogin
-        uses: azure/use-kubelogin@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
+      - uses: azure/use-kubelogin@v1
 
-      - name: Set AKS Context
-        uses: azure/aks-set-context@v4
+      - uses: azure/aks-set-context@v4
         with:
           cluster-name: ${{ secrets.AKS_CLUSTER }}
           resource-group: ${{ secrets.AZURE_RG }}
 
-      - name: Create GitHub deployment
+      - name: Start GitHub Deployment
         id: deployment
         uses: bobheadxi/deployments@v1
         with:
           step: start
           token: ${{ secrets.GITHUB_TOKEN }}
-          env: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+          env: production
 
-      - name: Debug environment variables
+      - name: Prepare Kubernetes manifests
         run: |
-          echo "IMAGE_TAG=${{ needs.docker-build-and-push.outputs.version }}"
-          echo "ACR_NAME=${{ secrets.ACR_NAME }}"
-
-      - name: Render deployment.yaml with secrets
-        run: |
-          echo "VERSION=${{ needs.docker-build-and-push.outputs.version }}" >> $GITHUB_ENV
+          export IMAGE_TAG=${{ needs.release.outputs.version }}
+          export ACR_NAME=${{ secrets.ACR_NAME }}
           envsubst < deployment/deployment.yaml > deployment/deployment.final.yaml
-        env:
-          IMAGE_TAG: ${{ needs.docker-build-and-push.outputs.version }}
-          ACR_NAME: ${{ secrets.ACR_NAME }}
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
       - name: Deploy to AKS
         run: |
@@ -150,12 +121,11 @@ jobs:
           kubectl apply -f deployment/ingress.yaml
           kubectl rollout status deployment/${{ env.IMAGE_NAME }} -n wizeworks
 
-      - name: Mark deployment as successful
-        if: success()
+      - name: Finish GitHub Deployment
         uses: bobheadxi/deployments@v1
         with:
           step: finish
           token: ${{ secrets.GITHUB_TOKEN }}
           status: success
-          env: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+          env: production
           deployment_id: ${{ steps.deployment.outputs.deployment_id }}
