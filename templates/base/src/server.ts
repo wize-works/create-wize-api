@@ -1,45 +1,45 @@
+// src/server.ts
 
 import './config/dotenv';
-import Sentry from './lib/sentry';
 
-import path from 'path';
-import Fastify from 'fastify';
-import mercurius from 'mercurius';
-import { authContext } from './lib/auth';
-
-import { buildUnifiedGraphQLSchemaFromFolder } from '@wizeworks/graphql-factory';
-
-const app = Fastify();
-Sentry.setupFastifyErrorHandler(app);
+import express from 'express';
+import { MongoClient } from 'mongodb';
+import { createYoga } from 'graphql-yoga';
+import { createServerSchema, createServerContext, registerSchemaRoutes } from '@wizeworks/graphql-factory-mongo';
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
+const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/';
 
-const schema = buildUnifiedGraphQLSchemaFromFolder(path.join(__dirname, 'models'));
+const mongoClient = new MongoClient(MONGO_URI);
 
-app.register(mercurius, {
-    schema: schema,
-    graphiql: true,
-    path: '/graphql',
-    context: authContext,
-});
+const start = async () => {
+    await mongoClient.connect();
 
-app.setErrorHandler((error, request, reply) => {
-    console.error('Error occurred:', error);
-    Sentry.captureException(error);
-    reply.status(500).send({ error: 'Internal Server Error' });
-});
+    const yoga = createYoga({
+        graphqlEndpoint: '/graphql',
+        schema: (args) => createServerSchema(args.request, mongoClient),
+        context: async ({request}) => {
+            const baseContext = await createServerContext(request, mongoClient);
+            return {
+                ...baseContext,
+                dbName: '__PROJECT_NAME__',
+            };
+        },
+        graphiql: true
+    });
 
-app.setNotFoundHandler((request, reply) => {
-    const error = new Error(`Route ${request.method} ${request.url} not found`);
-    Sentry.captureException(error);
-    reply.status(404).send({ error: 'Not Found' });
-});
+    const app = express();
+    app.use(express.json());
+    
+    const schema = registerSchemaRoutes(app, mongoClient);
 
-app.listen({ port: port, host: '0.0.0.0' }, (err, address) => {
-    if (err) {
-        Sentry.captureException(err);
-        console.error(err);
-        process.exit(1);
-    }
-    console.log(`🚀 __PROJECT_NAME__ API ready on port ${port}`);
-});
+
+    // Use Yoga as middleware in Express
+    app.use(yoga.graphqlEndpoint, yoga);
+
+    app.listen(port, () => {
+        console.log(`🚀 __PROJECT_NAME__ API ready at http://localhost:${port}/graphql`);
+    });
+};
+
+start();

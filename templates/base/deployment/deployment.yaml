@@ -28,10 +28,8 @@ spec:
         env:
         - name: ENVIRONMENT
           value: "production"
-        - name: SUPABASE_URL
-          value: "${SUPABASE_URL}"
-        - name: SUPABASE_KEY
-          value: "${SUPABASE_KEY}"
+        - name: MONGO_URI
+          value: "${MONGO_URI}"
         - name: SENTRY_DSN
           value: "${SENTRY_DSN}"
         resources:

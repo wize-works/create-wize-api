@@ -13,6 +13,9 @@ jobs:
     name: Semantic Release
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    permissions:
+      contents: write
+      issues: write
     outputs:
       version: ${{ steps.get_version.outputs.version }}
     steps:
@@ -93,6 +96,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     environment: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+    permissions:
+        contents: write
+        deployments: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -102,12 +108,11 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Install kubelogin (for AAD auth)
-        run: |
-          curl -LO https://github.com/Azure/kubelogin/releases/download/v0.0.25/kubelogin-linux-amd64.zip
-          unzip kubelogin-linux-amd64.zip -d kubelogin
-          sudo mv kubelogin/bin/linux_amd64/kubelogin /usr/local/bin
-          kubelogin --version
+      - name: Install kubelogin
+        uses: azure/use-kubelogin@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
 
       - name: Set AKS Context
         uses: azure/aks-set-context@v4
@@ -116,6 +121,7 @@ jobs:
           resource-group: ${{ secrets.AZURE_RG }}
 
       - name: Create GitHub deployment
+        id: deployment
         uses: bobheadxi/deployments@v1
         with:
           step: start
@@ -134,8 +140,7 @@ jobs:
         env:
           IMAGE_TAG: ${{ needs.docker-build-and-push.outputs.version }}
           ACR_NAME: ${{ secrets.ACR_NAME }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          MONGO_URI: ${{ secrets.MONGO_URI }}
           SENTRY_DSN: ${{ secrets.SENTRY_DSN }}
 
       - name: Deploy to AKS
@@ -153,3 +158,4 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           status: success
           env: ${{ github.ref_name == 'main' && 'production' || 'development' }}
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
