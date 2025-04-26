@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: __PROJECT_NAME__
-        image: ${ACR_NAME}.azurecr.io/__PROJECT_NAME__:${IMAGE_TAG}
+        image: "${ACR_NAME}.azurecr.io/__PROJECT_NAME__:${IMAGE_TAG}"
         ports:
         - containerPort: 3000
         securityContext:

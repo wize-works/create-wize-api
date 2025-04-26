@@ -8,7 +8,7 @@ on:
       - main
 
 env:
-  IMAGE_NAME: __PROJECT_NAME__
+  IMAGE_NAME: __PROJECT_NAME_
 
 jobs:
   release:
@@ -93,7 +93,11 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - uses: azure/use-kubelogin@v1
+      - name: Install kubelogin
+        uses: azure/use-kubelogin@v1
+        env:
+          version: latest
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: azure/aks-set-context@v4
         with:
