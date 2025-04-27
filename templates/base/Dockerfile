@@ -3,7 +3,6 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-
 # Install dependencies (including dev for build tools like TypeScript)
 COPY package.json package-lock.json* ./
 RUN npm ci
