@@ -7,6 +7,7 @@ import { MongoClient } from 'mongodb';
 import { createYoga } from 'graphql-yoga';
 import { createServerSchema, createServerContext, registerSchemaRoutes, registerAdminRoutes } from '@wizeworks/graphql-factory-mongo';
 import { logger } from './config/logger';
+import { registerCors } from './config/cors';
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/';
@@ -42,6 +43,8 @@ const start = async () => {
 
     const app = express();
     app.use(express.json());
+
+    registerCors(app);
     
     registerSchemaRoutes(app, mongoClient, database);
     registerAdminRoutes(app, mongoClient, currentSchemas, database);
