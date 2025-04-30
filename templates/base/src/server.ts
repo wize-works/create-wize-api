@@ -2,6 +2,7 @@
 
 import './config/dotenv';
 
+import Sentry from './config/sentry';
 import express from 'express';
 import { MongoClient } from 'mongodb';
 import { createYoga } from 'graphql-yoga';
@@ -13,7 +14,7 @@ import {
 } from '@wizeworks/graphql-factory-mongo';
 import { logger } from './config/logger';
 import { registerCors } from './config/cors';
-import { useFormattedErrors } from './utils/formattedError';
+import { useFormattedErrors } from './utils/formatError';
 
 const port = process.env.PORT ? parseInt(process.env.PORT, 10) : 3000;
 const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/';
@@ -62,6 +63,8 @@ const start = async () => {
 
     // Use Yoga as middleware in Express
     app.use(yoga.graphqlEndpoint, yoga);
+
+    Sentry.setupExpressErrorHandler(app);
 
     app.listen(port, () => {
         console.log(
