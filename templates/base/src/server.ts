@@ -24,8 +24,8 @@ let currentSchemas: any = null;
 
 const start = async () => {
     await mongoClient.connect();
-    logger.info('MongoDB connected');
-    logger.info(`Using database: ${database}`);
+    logger.info?.('MongoDB connected');
+    logger.info?.(`Using database: ${database}`);
 
     const yoga = createYoga({
         graphqlEndpoint: '/graphql',
@@ -68,7 +68,7 @@ const start = async () => {
 
     app.listen(port, () => {
         console.log(
-            `🚀 wize-example API ready at http://localhost:${port}/graphql`
+            `🚀 __PROJECT_NAME__ API ready at http://localhost:${port}/graphql`
         );
     });
 };
